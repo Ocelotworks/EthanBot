@@ -65,7 +65,7 @@ module.exports = {
                                 .then(function(currency){
                                     bot.sendMessage({
                                         to: channel,
-                                        message: `:dollar: Gave <@${userID}> **${amount}** ${currency}.`
+                                        message: `:dollar: Gave <@${target}> **${amount}** ${currency}.`
                                     });
                                 })
                                 .then(function(){
