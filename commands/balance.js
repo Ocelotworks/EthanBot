@@ -10,16 +10,16 @@ module.exports = {
     run: function run(user, userID, channel, message, args, event, bot){
         var target = args[1] ? args[1].replace(/[!<>@]/g, "") : userID;
 
-
-        bot.database.getBalance(target)
+        var server = bot.channels[channel].guild_id;
+        bot.database.getBalance(target, server)
             .then(function(result){
                var balance = result[0].balance;
-               bot.sendMessage({
-                   to: channel,
-                   message: `:dollar: <@${target}> has **${result[0] ? result[0].balance : 0}** ${config.get("Bot.defaultCurrency")}${balance > 1 ? "s" : ""}.`
+               bot.getCurrencyFor(server, balance).then(function(currency){
+                   bot.sendMessage({
+                       to: channel,
+                       message: `:dollar: <@${target}> has **${result[0] ? result[0].balance : 0}** ${currency}.`
+                   });
                });
             });
-
-
     }
 };

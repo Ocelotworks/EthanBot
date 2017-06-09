@@ -14,6 +14,7 @@ module.exports = {
             return;
         }
           if(!bot.nextDraw){
+
               bot.nextDraw = parseInt(config.get("Bot.lotteryInterval"))+new Date().getTime();
               bot.doLottery = function doDraw(){
                   if(bot.lotteryTimeout){
@@ -50,7 +51,7 @@ module.exports = {
                               if(result.hasOwnProperty(i)){
                                   bot.sendMessage({
                                       to: result[i].lotteryChannel,
-                                      message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${total} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with !lottery [amount] to have a chance of winning!`
+                                      message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${total} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with **!lottery [amount]** to have a chance of winning!`
                                   });
                               }
                           }
@@ -72,7 +73,7 @@ module.exports = {
                    if(lottery.entries > 0){
                        bot.sendMessage({
                            to: channel,
-                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${parseInt(lottery.averageBet)}** ${config.get("Bot.defaultCurrency")}s per bet, **${lottery.total}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with !lottery amount `
+                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${parseInt(lottery.averageBet)}** ${config.get("Bot.defaultCurrency")}s per bet, **${lottery.total}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with **!lottery [amount]** `
                        });
                    }else{
                        bot.sendMessage({

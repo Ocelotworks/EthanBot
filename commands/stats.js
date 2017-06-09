@@ -10,12 +10,11 @@ module.exports = {
     run: function run(user, userID, channel, message, args, event, bot) {
         bot.database.getStats()
             .then(function(stats){
-                console.log(stats);
                bot.sendMessage({
                    to: channel,
                    message: "",
                    embed: {
-                       color: 0x5D5DFF,
+                       color: 0x189F06,
                        title: "",
                        description: "",
                        fields: [

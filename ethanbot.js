@@ -97,8 +97,24 @@ function startBot(cb){
        setTimeout(bot.connect, 1000);
     });
 
-    bot.on("guildMemberAdd", function(member){
+    bot.on("guildMemberAdd", function(member, event){
         var username = bot.users[member.id].username+"#"+bot.users[member.id].discriminator;
+        var server = event.d.guild_id;
+        bot.database.getServer(server)
+            .then(function(result){
+                var serverInfo = result[0];
+                if(serverInfo.useServerCurrency){
+                   return bot.database.createServerUser(server. member.id, username);
+                }
+            })
+            .then(function(result){
+                if(result)
+                    bot.log(`Added server user ${member.id} ${username} ${server}`);
+            })
+            .catch(function(err){
+                bot.error(`Error adding server user: ${member.id} ${username} ${server}: ${err}`)
+            });
+
         bot.database.addUser(member.id, username)
             .then(function(){
                 bot.log(`Added user ${member.id}: ${username}`);
@@ -112,7 +128,6 @@ function startBot(cb){
         bot.log("Joined Server "+server.name);
         bot.database.addAllUsers(server.id);
     });
-
 
     bot.log("Connecting to Discord...");
     bot.connect();
