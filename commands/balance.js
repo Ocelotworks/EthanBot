@@ -13,13 +13,41 @@ module.exports = {
         var server = bot.channels[channel].guild_id;
         bot.database.getBalance(target, server)
             .then(function(result){
-               var balance = result[0].balance;
-               bot.getCurrencyFor(server, balance).then(function(currency){
-                   bot.sendMessage({
-                       to: channel,
-                       message: `:dollar: <@${target}> has **${result[0] ? result[0].balance : 0}** ${currency}.`
-                   });
-               });
+                if(!result[0]){
+                    bot.log("User doesn't have a thing");
+
+                    if(bot.users[target]){
+                        bot.database.createServerUser(server, target, bot.users[target].username+"#"+bot.users[target].discriminator)
+                            .then(function(){
+                                return bot.getCurrencyFor(server, balance);
+                            })
+                            .then(function(currency){
+                                bot.sendMessage({
+                                    to: channel,
+                                    message: `:dollar: <@${target}> has **0** ${currency}...`
+                                });
+                            })
+                            .catch(function(err){
+                               bot.sendMessage({
+                                   to: channel,
+                                   message: `:bangbang: Something has gone horribly, horribly wrong. Let Big P#1843 know about this:\n\`\`\`\n${err}\n\`\`\``
+                               });
+                            });
+                    }else{
+                        bot.sendMessage({
+                            to: channel,
+                            message: ":bangbang: That user doesn't exit."
+                        });
+                    }
+                }else{
+                    var balance = result[0].balance;
+                    bot.getCurrencyFor(server, balance).then(function(currency){
+                        bot.sendMessage({
+                            to: channel,
+                            message: `:dollar: <@${target}> has **${balance}** ${currency}.`
+                        });
+                    });
+                }
             });
     }
 };
