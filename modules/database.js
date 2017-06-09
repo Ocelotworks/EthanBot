@@ -135,13 +135,15 @@ module.exports = function(bot){
                 },
                 setupServerCurrency: function setupServerCurrency(server, balance){
                     var users = Object.keys(bot.servers[server].members);
+                    bot.log("Setting up server currency for "+server);
                     return pasync.eachSeries(users, function(user, cb){
+                        bot.log("Adding user "+user);
                         knex.insert({
                             server: server,
                             user: user,
                             username: bot.users[user].username+"#"+bot.users[user].discriminator,
                             balance: balance
-                        }).into(SERVER_BALANCE_TABLE).asCallback(cb);
+                        }).into(SERVER_BALANCE_TABLE).asCallback(function(){cb();});
                     }).then(function(){
                         return bot.database.setServerSetting(server, "useServerCurrency", 1);
                     });
