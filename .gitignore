@@ -27,3 +27,4 @@ typings/
 .idea/
 config/production.json
 config/development.json
+config/Earth.json
