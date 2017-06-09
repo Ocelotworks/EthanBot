@@ -1,0 +1,33 @@
+{
+  "Bot": {
+    "defaultCurrency": "EthanBuck",
+    "lotteryInterval": 3600000
+  },
+  "Discord": {
+    "token": "",
+    "messageDelay": 300
+  },
+  "Database": {
+    "client": "mysql",
+    "connection": {
+      "host": "localhost",
+      "port": 3306,
+      "user": "",
+      "password": "",
+      "database": "ethanbot"
+    },
+    "pool": {
+      "min": 0,
+      "max": 20
+    }
+  },
+  "Modules": {
+    "LoadBefore": [
+      "database",
+      "commands"
+    ],
+    "LoadAfter": [
+
+    ]
+  }
+}

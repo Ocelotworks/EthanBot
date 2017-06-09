@@ -1,0 +1,14 @@
+{
+  "name": "EthanBot",
+  "version": "0.0.1",
+  "dependencies": {
+    "async": "^2.4.1",
+    "caller-id": "^0.1.0",
+    "colors": "^1.1.2",
+    "config": "^1.26.1",
+    "dateformat": "^2.0.0",
+    "discord.io": "^2.5.1",
+    "knex": "^0.13.0",
+    "mysql": "^2.13.0"
+  }
+}
