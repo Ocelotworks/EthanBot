@@ -58,7 +58,7 @@ module.exports = {
             },
             useRoleRewards: {
                 explanation: "Use roles for setting role rewards instead of a fixed rate.",
-                format: function(format){
+                format: function format(value){
                     return !!value;
                 }
             }
