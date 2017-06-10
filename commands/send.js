@@ -33,7 +33,10 @@ module.exports = {
                     bot.database.getBalance(userID, server)
                         .then(function (result) {
                             if (result[0].balance >= amount) {
-                                return bot.database.transact(userID, to, amount, server)
+                                return bot.database.useServerCurrency(server).then(function(result){
+                                   var shouldUseServerCurrency = !!result[0].useServerCurrency;
+                                    return bot.database.transact(userID, to, amount, shouldUseServerCurrency ? server : null);
+                                });
                             }else{
                                 bot.getCurrencyFor(server, amount).then(function(currency){
                                     bot.sendMessage({
