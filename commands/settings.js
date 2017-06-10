@@ -37,6 +37,30 @@ module.exports = {
                 format: function format(value){
                     return !!value;
                 }
+            },
+            useDailyReward: {
+                explanation: "Give everyone a daily balance of whatever is in `dailyBalanceAmount`, every day. Obviously.",
+                format: function format(value){
+                    return !!value
+                }
+            },
+            dailyRewardAmount: {
+                explanation: "The amount to give to all users every day.",
+                format: function format(value){
+                    return value;
+                }
+            },
+            dailyRewardRoles: {
+                explanation: "Use roles for daily rewards. Set with !settings rewardroles [role] [amount]",
+                format: function format(value){
+                    return !!value
+                }
+            },
+            useRoleRewards: {
+                explanation: "Use roles for setting role rewards instead of a fixed rate.",
+                format: function(format){
+                    return !!value;
+                }
             }
         };
         bot.database.getServer(server)
@@ -99,6 +123,47 @@ module.exports = {
                             });
                             bot.log(args[3]);
                         }
+                    },
+                    "rolerewards": function(){
+                        if(args.length < 4){
+                            bot.sendMessage({
+                                to: channel,
+                                message: ":bangbang: You must supply a role and an amount: !settings rewardroles @Admin 100"
+                            });
+                        }else{
+                            var role = args[2].replace(/[<>&@]/g, "");
+                            var amount = parseInt(args[3]);
+                            if(!amount){
+                                bot.sendMessage({
+                                    to: channel,
+                                    message: ":bangbang: You must enter a valid amount!"
+                                });
+                            }else if(!bot.servers[server].roles[role]){
+                                console.log(role);
+                                console.log(bot.servers[server].roles);
+                                bot.sendMessage({
+                                    to: channel,
+                                    message: ":bangbang: Invalid role. Make sure the role is mentionable and mentioned like !settings rewardroles @Admin 100"
+                                });
+                            }else{
+                                bot.database.setRoleReward(server, role, amount)
+                                    .then(function(){
+                                        return bot.getCurrencyFor(server, amount);
+                                    })
+                                    .then(function(currency){
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: `:white_check_mark: Successfully set <&@${role}>'s daily reward 5o ${amount} ${currency}.`
+                                        });
+                                    })
+                                    .catch(function(err){
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: `:bangbang: Error setting role reward:\n${err}`
+                                        });
+                                    });
+                            }
+                        }
                     }
                 };
 
@@ -119,7 +184,7 @@ module.exports = {
                     if(!args[1] || (args[1] === "help" && !args[2]) || !subCommands[args[1]]){
                         bot.sendMessage({
                             to: channel,
-                            message: "**Usage:**\n!settings help [setting] - This message or help on an individual setting\n!settings list - List the available settings and their current values\n!settings set [setting] [value] - Set a new value for a server setting"
+                            message: "**Usage:**\n!settings help [setting] - This message or help on an individual setting\n!settings list - List the available settings and their current values\n!settings set [setting] [value] - Set a new value for a server setting\n!settings rolerewards [role] [amount]"
                         });
                     }else{
                         subCommands[args[1]]();
