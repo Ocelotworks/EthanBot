@@ -15,11 +15,12 @@ module.exports = function(bot){
             const TRANSACTIONS_TABLE    = "eb_transactions";
             const SERVERS_TABLE         = "eb_servers";
             const LOTTERY_TABLE         = "eb_lottery";
+            const REWARDS_TABLE         = "eb_rewardroles";
 
 
             bot.getCurrencyFor = function getCurrencyFor(server, amount){
                 return bot.database.getServerCurrency(server).then(function(result){
-                    return (result[0] ? result[0].serverCurrencyName : "EthanBuck") + (amount  > 1 && result[0].usePluralCurrency ? "s" : "");
+                    return (result[0] ? result[0].serverCurrencyName : "EthanBuck") + (amount  !== 1 && result[0].usePluralCurrency ? "s" : "");
                 });
             };
 
@@ -91,6 +92,19 @@ module.exports = function(bot){
                 getUser: function getUser(id){
                     return knex.select().from(USERS_TABLE).where({user: id}).limit(1);
                 },
+                getRoleReward: function getRoleReward(server, role){
+                    return knex.select("amount").from(REWARDS_TABLE).where({server: server, role: role}).limit(1);
+                },
+                setRoleReward: function setRoleReward(server, role, amount){
+                    return bot.database.getRoleReward(server, role)
+                        .then(function(result){
+                            if(!result[0]){
+                                return knex.insert({server: server, role: role, amount: amount}).into(REWARDS_TABLE);
+                            }else{
+                                return knex(REWARDS_TABLE).update({amount: amount}).limit(1);
+                            }
+                        });
+                },
                 getBalance: function getBalance(user, server){
                     if(server){
                         return knex.select("useServerCurrency").from(SERVERS_TABLE).where({server: server}).limit(1).then(function(result){
@@ -118,6 +132,9 @@ module.exports = function(bot){
                         .update({balance: amount})
                         .where(server ? {user: user, server: server} : {user: user})
                         .limit(1);
+                },
+                useServerCurrency: function useServerCurrency(server){
+                    return knex.select("useServerCurrency").from(SERVERS_TABLE).where({server: server}).limit(1)
                 },
                 addBalance: function addBalance(user, amount, server){
                     return bot.database.setBalance(user,
