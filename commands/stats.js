@@ -34,6 +34,11 @@ module.exports = {
                                inline: true
                            },
                            {
+                               name: "Message Stats",
+                               value: `**${bot.messageCount}** total messages sent this session. **${(bot.totalMessageTime/bot.messageCount).toFixed(2)} ms** average response time.`,
+                               inline: false
+                           },
+                           {
                                name: "Total Balance",
                                value: `${stats[0].totalBalance} ${config.get("Bot.defaultCurrency")}s`,
                                inline: true
