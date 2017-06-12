@@ -116,7 +116,7 @@ module.exports = {
                         }
                     })
                     .catch(function(err){
-                        if(err.message.indexOf("duplicate") > -1){
+                        if(err.message.indexOf("Duplicate") > -1){
                             bot.sendMessage({
                                 to: channel,
                                 message: ":bangbang: You've already entered the lottery!"
