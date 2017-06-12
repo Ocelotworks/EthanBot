@@ -16,6 +16,8 @@ module.exports = function(bot){
             const SERVERS_TABLE         = "eb_servers";
             const LOTTERY_TABLE         = "eb_lottery";
             const REWARDS_TABLE         = "eb_rewardroles";
+            const SHOP_TABLE            = "eb_shop";
+            const INVENTORY_TABLE       = "eb_inventory";
 
 
             bot.getCurrencyFor = function getCurrencyFor(server, amount){
@@ -94,6 +96,12 @@ module.exports = function(bot){
                 },
                 getRoleReward: function getRoleReward(server, role){
                     return knex.select("amount").from(REWARDS_TABLE).where({server: server, role: role}).limit(1);
+                },
+                getRoleRewards: function getRoleRewards(server){
+                    return knex.select("role", "amount").from(REWARDS_TABLE).where({server: server});
+                },
+                getRewardServers: function getRewardServers(){
+                    return knex.select("server", "dailyRewardAmount", "useRoleRewards").from(SERVERS_TABLE).where({useDailyReward: 1});
                 },
                 setRoleReward: function setRoleReward(server, role, amount){
                     return bot.database.getRoleReward(server, role)
@@ -201,7 +209,7 @@ module.exports = function(bot){
                 getServersWithSetting: function getServersWithSetting(setting){
                     return knex.select().from(SERVERS_TABLE).whereNotNull(setting).andWhereNot(setting, 0);
                 },
-                logTransaction: function(from, to, amount, type){
+                logTransaction: function logTransaction(from, to, amount, type){
                     return knex.insert({
                         from: from === "lottery" ? "lottery===========" : from,
                         to: to === "lottery" ? "lottery===========" : to,
@@ -209,8 +217,44 @@ module.exports = function(bot){
                         type: type ? type : "lottery"
                     }).into(TRANSACTIONS_TABLE);
                 },
-                getStats: function(){
+                getStats: function getStats(){
                     return knex.select(knex.raw("SUM(balance) as totalBalance, AVG(balance) AS averageBalance")).from(USERS_TABLE);
+                },
+                getShopItems: function getShopItems(){
+                    return knex.select("id", "name", "price").from(SHOP_TABLE);
+                },
+                getItemDetails: function getItemDetails(id){
+                    return knex.select().from(SHOP_TABLE).where({id: id}).limit(1);
+                },
+                getItemCost: function getItemCost(id){
+                    return knex.select("price").from(SHOP_TABLE).where({id: id}).limit(1);
+                },
+                giveItem: function giveItem(user, id){
+                    return knex.insert({
+                        user: user,
+                        item: id
+                    }).into(INVENTORY_TABLE);
+                },
+                hasItem: function hasItem(user, id){
+                    return knex.select().from(INVENTORY_TABLE).where({user: user, item: id}).limit(1)
+                        .then(function(result){
+                            return !!result[0];
+                        });
+                },
+                consumeItem: function consumeItem(user, id){
+                    //Weird ass workaround needed because LIMIT doesnt work
+                    return knex.raw(knex.delete().from(INVENTORY_TABLE).where({user: user, item: id}).toString()+" LIMIT 1");
+                },
+                getInventory: function getInventory(user){
+                    return knex.select(knex.raw("COUNT(*) as amount"), SHOP_TABLE+".name", SHOP_TABLE+".id")
+                        .from(INVENTORY_TABLE)
+                        .innerJoin(SHOP_TABLE, INVENTORY_TABLE+".item", SHOP_TABLE+".id")
+                        .groupBy("item")
+                        .orderBy("item")
+                        .where({
+                            user: user
+                        });
+
                 }
             };
 

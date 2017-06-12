@@ -98,8 +98,8 @@ module.exports = {
                     break;
                 case "reload":
                     try {
-                        require.uncache(args[2], function () {
-                            var loadedCommand = require("./" + command);
+                        require.uncache("./"+args[2], function () {
+                            var loadedCommand = require("./" + args[2]);
                             bot.sendMessage({
                                 to: channel,
                                 message: `Loaded command ${loadedCommand.name}`

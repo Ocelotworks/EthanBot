@@ -24,7 +24,8 @@
   "Modules": {
     "LoadBefore": [
       "database",
-      "commands"
+      "commands",
+      "items"
     ],
     "LoadAfter": [
 

@@ -1,11 +1,60 @@
 /**
  * Created by Peter on 09/06/2017.
  */
+const pasync = require('promise-async');
 module.exports = {
     name: "Server Settings",
     usage: "settings [set/help/list]",
     accessLevel: 1,
     commands: ["settings", "serversettings"],
+    init: function init(bot, cb){
+        var now = new Date();
+        var midnight = new Date();
+        midnight.setHours(0, 0, 0);
+        if(midnight < now){
+            midnight.setDate(midnight.getDate()+1);
+        }
+        bot.log("Midnight is at "+midnight);
+        bot.doDailyRewards = function(){
+
+            bot.database.getRewardServers()
+                .then(function(servers){
+                    return pasync.eachSeries(servers, function(server, callback){
+                        if(server.useRoleRewards){
+                            bot.database.getRoleRewards(server.server).then(function(roleRewards){
+                               return pasync.eachSeries(bot.servers[server.server].members, function(member, cb){
+                                    var keys = Object.keys(member.roles);
+                                    pasync.eachSeries(roleRewards, function(roleReward, cb2){
+                                        if(keys.indexOf(roleReward.role) > -1){
+                                            bot.log(`Rewarding ${member.id} ${roleReward.amount} monies in ${server.server}.`);
+                                            bot.transact("reward============", member.id, roleReward.amount, server.server)
+                                                .then(function(){
+                                                    cb2();
+                                                })
+                                                .catch(function(err){
+                                                    bot.warning("Failed to give out daily reward: "+err);
+                                                    cb2();
+                                                })
+                                        }else{
+                                            cb2();
+                                        }
+
+                                    }).then(function(){cb();});
+                               });
+                            });
+                        }
+                        callback();
+                    });
+                })
+                .catch(function(err){
+                    bot.log("Error giving out rewards: "+err);
+                });
+
+            setTimeout(bot.doDailyRewards, 8.64e7);//24 hours
+        };
+
+        setTimeout(bot.doDailyRewards, midnight-now);
+    },
     run: function run(user, userID, channel, message, args, event, bot) {
         var server = bot.channels[channel].guild_id;
         const settings = {
@@ -153,7 +202,7 @@ module.exports = {
                                     .then(function(currency){
                                         bot.sendMessage({
                                             to: channel,
-                                            message: `:white_check_mark: Successfully set <&@${role}>'s daily reward 5o ${amount} ${currency}.`
+                                            message: `:white_check_mark: Successfully set <&@${role}>'s daily reward to ${amount} ${currency}.`
                                         });
                                     })
                                     .catch(function(err){
