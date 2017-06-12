@@ -37,6 +37,56 @@ module.exports = {
                 case "forcelottery":
                     bot.doLottery();
                     break;
+                case "forcedaily":
+                    bot.doDailyRewards();
+                    bot.sendMessage({
+                        to: channel,
+                        message: "Done."
+                    });
+                    break;
+                case "say":
+                    bot.sendMessage({
+                        to: channel,
+                        message: message.substring(11)
+                    });
+                    break;
+                case "servers":
+                    var fields = [];
+                    for(var i in bot.servers){
+                        var server = bot.servers[i];
+                        var field = {
+                            name: server.name,
+                            value: `**${server.member_count}** members. **${Object.keys(server.channels).length}** channels.`,
+                            inline: true
+                        };
+                        fields.push(field);
+                    }
+                    bot.sendMessage({
+                        to: channel,
+                        message: "",
+                        embed: {
+                            color: 0x189F06,
+                            title: `Currently in **${Object.keys(bot.servers).length} servers.**`,
+                            description: "",
+                            fields: fields
+                        }
+                    });
+                    break;
+                case "presence":
+                    bot.setPresence({
+                        game: {
+                            name: message.substring(16)
+                        }
+                    });
+                    break;
+                case "broadcast":
+                    for(var i in bot.servers){
+                       bot.sendMessage({
+                           to: Object.keys(bot.servers[i].channels)[0],
+                           message: ":bangbang: BROADCAST: "+message.substring(17)
+                       });
+                    }
+                    break;
                 case "take":
                     bot.database.transact(args[2].replace(/[!@<>]/g, ""), userID, args[3])
                         .then(function(){
@@ -46,9 +96,74 @@ module.exports = {
                             });
                         });
                     break;
+                case "reload":
+                    try {
+                        require.uncache(args[2], function () {
+                            var loadedCommand = require("./" + command);
+                            bot.sendMessage({
+                                to: channel,
+                                message: `Loaded command ${loadedCommand.name}`
+                            });
+                            bot.commandUsages[loadedCommand.name] = {
+                                usage: loadedCommand.usage,
+                                accessLevel: loadedCommand.accessLevel
+                            };
+                            for (var i in loadedCommand.commands) {
+                                if (loadedCommand.commands.hasOwnProperty(i)) {
+                                    bot.commands[loadedCommand.commands[i]] = loadedCommand.run;
+                                }
+
+                            }
+                        });
+                    }catch(e){
+                        bot.sendMessage({
+                            to: channel,
+                            message: e.stack
+                        });
+                    }
 
             }
         }
 
     }
 };
+
+require.searchCache = function (moduleName, callback) {
+    // Resolve the module identified by the specified name
+    var mod = require.resolve(moduleName);
+
+    // Check if the module has been resolved and found within
+    // the cache
+    if (mod && ((mod = require.cache[mod]) !== undefined)) {
+        // Recursively go over the results
+        (function run(mod) {
+            // Go over each of the module's children and
+            // run over it
+            mod.children.forEach(function (child) {
+                run(child);
+            });
+
+            // Call the specified callback providing the
+            // found module
+            callback(mod);
+        })(mod);
+    }
+};
+
+require.uncache = function uncache(moduleName, cb) {
+    // Run over the cache looking for the files
+    // loaded by the specified module name
+    require.searchCache(moduleName, function (mod) {
+        delete require.cache[mod.id];
+        if(cb)
+            cb();
+    });
+
+    // Remove cached paths to the module.
+    // Thanks to @bentael for pointing this out.
+    Object.keys(module.constructor._pathCache).forEach(function(cacheKey) {
+        if (cacheKey.indexOf(moduleName)>0) {
+            delete module.constructor._pathCache[cacheKey];
+        }
+    });
+}
