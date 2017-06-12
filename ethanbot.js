@@ -46,20 +46,28 @@ function initBot(cb){
     bot.log("EthanBot Loading...");
 
     bot.messageQueue = [];
+    bot.messageCount = 0;
+    bot.totalMessageTime = 0;
     bot.isHandlingMessageQueue = false;
     bot.sendMessageForReal = bot.sendMessage;
     bot.handleMessageQueue = function handleMessageQueue(){
         var messageParams = bot.messageQueue.pop();
         if(messageParams){
             bot.isHandlingMessageQueue = true;
-            bot.sendMessageForReal.apply(bot, messageParams);
+            bot.sendMessageForReal(messageParams.args, messageParams.cb);
+            bot.messageCount++;
+            bot.totalMessageTime = new Date() - messageParams.sentAt;
             setTimeout(bot.handleMessageQueue, parseInt(config.get("Discord.messageDelay")));
         }else{
             bot.isHandlingMessageQueue = false;
         }
     };
     bot.sendMessage = function sendMessage(args, cb){
-        bot.messageQueue.push([args, cb]);
+        bot.messageQueue.push({
+            args: args,
+            cb: cb,
+            sentAt: new Date()
+        });
         if(!bot.isHandlingMessageQueue)
             bot.handleMessageQueue();
     };
