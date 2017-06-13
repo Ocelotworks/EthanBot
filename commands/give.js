@@ -15,7 +15,7 @@ module.exports = {
                 if(!serverInfo.useServerCurrency){
                     bot.sendMessage({
                         to: channel,
-                        message: ":bangbang: This command is only available for Server Currency. A Bot Master can enable this with the `!settings` command."
+                        message: `:bangbang: This command is only available for Server Currency. A Bot Master can enable this with the \`${bot.prefixCache[server]}settings\` command.`
                     });
                 }else{
                     var hasRole = false;

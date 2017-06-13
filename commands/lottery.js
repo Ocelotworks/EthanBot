@@ -66,6 +66,7 @@ module.exports = {
           cb();
     },
     run: function run(user, userID, channel, message, args, event, bot){
+        var server = bot.channels[channel].guild_id;
         if(!args[1]){
             bot.database.getLotteryInfo()
                 .then(function(result){
@@ -73,12 +74,12 @@ module.exports = {
                    if(lottery.entries > 0){
                        bot.sendMessage({
                            to: channel,
-                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${parseInt(lottery.averageBet)}** ${config.get("Bot.defaultCurrency")}s per bet, **${lottery.total}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with **!lottery [amount]** `
+                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${parseInt(lottery.averageBet)}** ${config.get("Bot.defaultCurrency")}s per bet, **${lottery.total}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with **${bot.prefixCache[server]}lottery [amount]** `
                        });
                    }else{
                        bot.sendMessage({
                            to: channel,
-                           message: `Nobody has entered the lottery yet. Be the first with !lottery amount`
+                           message: `Nobody has entered the lottery yet. Be the first with **${bot.prefixCache[server]}lottery amount**`
                        });
                    }
                 });

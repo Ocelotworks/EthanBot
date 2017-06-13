@@ -6,7 +6,7 @@ module.exports = {
     name: "Balance",
     usage: "balance [user]",
     accessLevel: 0,
-    commands: ["balance"],
+    commands: ["balance", "bal"],
     run: function run(user, userID, channel, message, args, event, bot){
         var target = args[1] ? args[1].replace(/[!<>@]/g, "") : userID;
 

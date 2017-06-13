@@ -121,6 +121,56 @@ module.exports = {
                             message: e.stack
                         });
                     }
+                    break;
+                case "pushlottery":
+                    const VIABLE_CHANNELS = ["bots", "bot", "shitpost", "shitposting", "spam", "botspam", "bot-spam", "lottery", "dump"];
+                    bot.database.getServersWithNoLotteryChannel()
+                        .then(function(servers){
+                            for(var i in servers) {
+                                if (servers.hasOwnProperty(i) && bot.servers[servers[i].server]) {
+                                    var serverID = servers[i].server;
+                                    var channels = bot.servers[serverID].channels;
+                                    for (var j in channels) {
+                                        var channel = channels[j];
+                                        if(VIABLE_CHANNELS.indexOf(channel.name) > -1){
+                                            bot.log("Found channel "+channel.name+" for server "+serverID);
+                                            bot.database.setServerSetting(serverID, "lotteryChannel", j)
+                                                .then(function(){
+                                                    bot.log("Set successfully");
+                                                });
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                    break;
+                case "giveItem":
+                    var currency;
+                    var server = bot.channels[channel].guild_id;
+                    bot.getCurrencyFor(server, 2)
+                        .then(function(result){
+                            currency = result;
+                            return bot.database.getItemDetails(args[3])
+                        })
+                        .then(function(result){
+                            if(result[0]){
+                                bot.sendMessage({
+                                    to: channel,
+                                    message: `Sent ${args[2]} **${result[0].name.replace("%CURRENCY", currency)}**.`
+                                });
+                                return bot.database.giveItem(args[2].replace(/[@!<>]/g, ""));
+                            }else{
+                                throw new Error("No such item");
+                            }
+                        })
+                        .catch(function(err){
+                            bot.sendMessage({
+                                to: channel,
+                                message: err.stack
+                            });
+                        })
 
             }
         }

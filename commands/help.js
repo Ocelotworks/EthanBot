@@ -8,8 +8,9 @@ module.exports = {
     commands: ["help", "commands"],
     run: function run(user, userID, channel, message, args, event, bot){
        var output = "COMMANDS:\n";
+       var server = bot.channels[channel] ? bot.channels[channel].guild_id : null;
        for(var i in bot.commandUsages){
-           output += `**${i}** - ${bot.commandUsages[i].usage}\n`
+           output += `**${i}** - ${bot.prefixCache[server] || "!"}${bot.commandUsages[i].usage}\n`
        }
 
        bot.sendMessage({

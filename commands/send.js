@@ -12,7 +12,7 @@ module.exports = {
         if(args.length < 3){
             bot.sendMessage({
                 to: channel,
-                message: ":bangbang: You must specify a **user** and an **amount**:\n`send @user amount`"
+                message: `:bangbang: You must specify a **user** and an **amount**:\n\`${bot.prefixCache[bot.channels[channel].guild_id]}send @user amount\``
             });
         }else{
             var server = bot.channels[channel].guild_id;

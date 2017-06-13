@@ -110,6 +110,15 @@ module.exports = {
                 format: function format(value){
                     return !!value;
                 }
+            },
+            prefix: {
+                explanation: "The prefix that goes before commands i.e !shop or !settings",
+                format: function format(value){
+                    return "`"+value+"`";
+                },
+                onSet: function(newVal){
+                    bot.prefixCache[server] = newVal;
+                },
             }
         };
         bot.database.getServer(server)
@@ -134,14 +143,14 @@ module.exports = {
                         if(args.length < 4){
                             bot.sendMessage({
                                 to: channel,
-                                message: ":bangbang: You must supply a **setting** and a **value**:\n!settings set useServerCurrency false"
+                                message: `:bangbang: You must supply a **setting** and a **value**:\n${bot.prefixCache[server]}settings set useServerCurrency false`
                             });
                         }else if(Object.keys(settings).indexOf(args[2]) > -1){
                             bot.database.setServerSetting(server, args[2], args[3] === "true" || args[3] === "false" ? args[3] === "true" : args[3])
                                 .then(function(){
                                     bot.sendMessage({
                                         to: channel,
-                                        message: ":white_check_mark: Successfully set value."
+                                        message: `:white_check_mark: Successfully set ${args[2]} to **${args[3]}**`
                                     });
                                     if(settings[args[2]].onSet)
                                         settings[args[2]].onSet(args[3]);
@@ -155,7 +164,7 @@ module.exports = {
                         }else{
                             bot.sendMessage({
                                 to: channel,
-                                message: ":bangbang: Not a valid setting. Try !settings list"
+                                message: `:bangbang: Not a valid setting. Try ${bot.prefixCache[server]}settings list`
                             });
                         }
                     },
@@ -168,7 +177,7 @@ module.exports = {
                         }else{
                             bot.sendMessage({
                                 to: channel,
-                                message: ":bangbang: Not a valid setting. Try !settings list."
+                                message: `:bangbang: Not a valid setting. Try ${bot.prefixCache[server]}settings list.`
                             });
                             bot.log(args[3]);
                         }
@@ -177,7 +186,7 @@ module.exports = {
                         if(args.length < 4){
                             bot.sendMessage({
                                 to: channel,
-                                message: ":bangbang: You must supply a role and an amount: !settings rewardroles @Admin 100"
+                                message: `:bangbang: You must supply a role and an amount: ${bot.prefixCache[server]}settings rewardroles @Admin 100`
                             });
                         }else{
                             var role = args[2].replace(/[<>&@]/g, "");
@@ -192,7 +201,7 @@ module.exports = {
                                 console.log(bot.servers[server].roles);
                                 bot.sendMessage({
                                     to: channel,
-                                    message: ":bangbang: Invalid role. Make sure the role is mentionable and mentioned like !settings rewardroles @Admin 100"
+                                    message: `:bangbang: Invalid role. Make sure the role is mentionable and mentioned like ${bot.prefixCache[server]}settings rewardroles @Admin 100`
                                 });
                             }else{
                                 bot.database.setRoleReward(server, role, amount)

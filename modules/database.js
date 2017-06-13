@@ -221,13 +221,13 @@ module.exports = function(bot){
                     return knex.select(knex.raw("SUM(balance) as totalBalance, AVG(balance) AS averageBalance")).from(USERS_TABLE);
                 },
                 getShopItems: function getShopItems(){
-                    return knex.select("id", "name", "price").from(SHOP_TABLE);
+                    return knex.select("id", "name", "price").from(SHOP_TABLE).where({visible: 1});
                 },
                 getItemDetails: function getItemDetails(id){
                     return knex.select().from(SHOP_TABLE).where({id: id}).limit(1);
                 },
                 getItemCost: function getItemCost(id){
-                    return knex.select("price").from(SHOP_TABLE).where({id: id}).limit(1);
+                    return knex.select("price").from(SHOP_TABLE).where({id: id, visible: 1}).limit(1);
                 },
                 giveItem: function giveItem(user, id){
                     return knex.insert({
@@ -255,6 +255,12 @@ module.exports = function(bot){
                             user: user
                         });
 
+                },
+                getPrefixes: function getPrefixes(){
+                    return knex.select("server","prefix").from(SERVERS_TABLE);
+                },
+                getServersWithNoLotteryChannel: function getServersWithNoLotteryChannel(){
+                    return knex.select("server").from(SERVERS_TABLE).whereNull("lotteryChannel");
                 }
             };
 

@@ -116,8 +116,18 @@ module.exports = {
                         message: ":bangbang: You must enter an ID!\nExample: `!shop buy 1` Will buy you a Crate Key."
                     });
                 }
+            }else{
+                bot.sendMessage({
+                    to: channel,
+                    message: ":bangbang: Try **!shop list**"
+                });
             }
 
+        }else{
+            bot.sendMessage({
+                to: channel,
+                message: ":bangbang: Try **!shop list**"
+            });
         }
 
 

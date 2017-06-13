@@ -40,14 +40,34 @@ module.exports = function(bot){
             }
         });
 
-        bot.on('message', function(user, userID, channelID, message, event){
-            if(message.startsWith("!")){
+        bot.prefixCache = {};
+        bot.database.getPrefixes()
+            .then(function(result){
+                 for(var i in result){
+                     if(result.hasOwnProperty(i))
+                        bot.prefixCache[result[i].server] = result[i].prefix;
+                 }
+            })
+            .catch(function(err){
+                bot.error("Error loading prefix cache: ");
+                console.error(err);
+            });
 
-                var args = message.split(" ");
-                var command = bot.commands[args[0].substring(1)];
-                if(command){
-                    command(user, userID, channelID, message, args, event, bot);
+        bot.on('message', function(user, userID, channelID, message, event){
+            try {
+                var server = bot.channels[channelID] ? bot.channels[channelID].guild_id : null;
+                if ((bot.prefixCache[server] && message.startsWith(bot.prefixCache[server])) || (!bot.prefixCache[server] && message.startsWith("!"))) {
+                    var args = message.split(" ");
+                    var command = bot.commands[args[0].substring(bot.prefixCache[server].length)];
+                    if (command) {
+                        command(user, userID, channelID, message, args, event, bot);
+                    }
                 }
+            }catch(e){
+                bot.sendMessage({
+                    to: channelID,
+                    message: ":bangbang: Command failed: "+e
+                })
             }
         });
       }
