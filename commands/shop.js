@@ -70,10 +70,10 @@ module.exports = {
                                 }
                             })
                             .then(function(result){
-                                if(result[0] && typeof result[0] == "string"){ //fuckin promises
+                                if(result && typeof result == "string"){ //fuckin promises
                                     bot.sendMessage({
                                         to: channel,
-                                        message: `:bangbang: You can't afford that. You only have **${balance}** ${currency}.`
+                                        message: `:bangbang: You can't afford that. You only have **${balance}** ${result ? result : "EthanBucks"}.`
                                     });
                                 }else if(result){
                                     return bot.database.addBalance(userID, -cost);
