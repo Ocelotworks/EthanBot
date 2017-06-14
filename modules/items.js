@@ -16,7 +16,7 @@ module.exports = function(bot) {
                     ITEM_FAIRY = 6,
                     ITEM_SPAGHETTI = 7;
 
-            bot.CRATE_CONTENTS =  [2, 2, 2, 1, 1, 4, 4, 7, 7, 7, 7, 6, 5, 5];
+            bot.CRATE_CONTENTS =  [2, 2, 2, 1, 1, 4, 4, 7, 7, 7, 7, 6, 5, 5, 4, 4, 2, 2, 7, 5];
 
             bot.items = [];
 
@@ -148,13 +148,13 @@ module.exports = function(bot) {
             };
 
             bot.items[ITEM_BAG] = function(user, channel){
-                var amount = parseInt((Math.random() + 500) * 1000);
+                var amount = parseInt((Math.random() * 1000) + 1000);
                 var server = bot.channels[channel].guild_id;
                 bot.getCurrencyFor(server, amount)
                     .then(function(currency){
                         bot.sendMessage({
                             to: channel,
-                            message: `:money_bag: The **Bag Of ${currency}** contains **${amount}** ${currency}.`
+                            message: `:moneybag: The **Bag Of ${currency}** contains **${amount}** ${currency}.`
                         });
                         return bot.database.addBalance(user, amount);
                     })
@@ -170,7 +170,7 @@ module.exports = function(bot) {
             };
 
             bot.items[ITEM_CREDIT_CARD] = function(user, channel){
-                var amount = parseInt((Math.random() + 1000) * 5000);
+                var amount = parseInt((Math.random() * 5000) * 1000);
                 var server = bot.channels[channel].guild_id;
                 bot.getCurrencyFor(server, amount)
                     .then(function(currency){
@@ -192,7 +192,7 @@ module.exports = function(bot) {
             };
 
             bot.items[ITEM_FAIRY] = function(user, channel){
-                var amount = parseInt((Math.random() + 5000) * 10000);
+                var amount = parseInt((Math.random() * 10000) + 5000);
                 var server = bot.channels[channel].guild_id;
                 bot.getCurrencyFor(server, amount)
                     .then(function(currency){
