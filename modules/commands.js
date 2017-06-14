@@ -58,7 +58,7 @@ module.exports = function(bot){
                 var server = bot.channels[channelID] ? bot.channels[channelID].guild_id : null;
                 if ((bot.prefixCache[server] && message.startsWith(bot.prefixCache[server])) || (!bot.prefixCache[server] && message.startsWith("!"))) {
                     var args = message.split(" ");
-                    var command = bot.commands[args[0].substring(bot.prefixCache[server].length)];
+                    var command = bot.commands[args[0].substring(bot.prefixCache[server]? bot.prefixCache[server].length : 1)];
                     if (command) {
                         command(user, userID, channelID, message, args, event, bot);
                     }
