@@ -7,7 +7,7 @@ module.exports = {
     accessLevel: 0,
     commands: ["feedback", "support"],
     run: function run(user, userID, channel, message, args, event, bot) {
-        var server = bot.channels[channel].guild_id;
+        var server = bot.channels[channel] ? bot.channels[channel].guild_id : "DM";
         if(args.length > 1){
             bot.sendMessage({
                 to: channel,
@@ -15,7 +15,7 @@ module.exports = {
             });
             bot.sendMessage({
                 to: "139871249567318017",
-                message: `Feedback from ${userID} (${user}) in ${server} (${bot.servers[server].name}):\n${message}`
+                message: `Feedback from ${userID} (${user}) in ${server} (${bot.servers[server] ? bot.servers[server].name : "DM"}):\n${message}`
             });
         }else{
             bot.sendMessage({
