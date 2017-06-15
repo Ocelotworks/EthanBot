@@ -161,6 +161,9 @@ module.exports = function(bot) {
                     .then(function(){
                         return bot.database.logTransaction("moneybag==========", user, amount, "other");
                     })
+                    .then(function(){
+                        return bot.database.consumeItem(user, ITEM_FAIRY);
+                    })
                     .catch(function(err){
                         bot.sendMessage({
                             to: channel,
@@ -204,6 +207,9 @@ module.exports = function(bot) {
                     })
                     .then(function(){
                         return bot.database.logTransaction("fairy=============", user, amount, "other");
+                    })
+                    .then(function(){
+                        return bot.database.consumeItem(user, ITEM_FAIRY);
                     })
                     .catch(function(err){
                         bot.sendMessage({
