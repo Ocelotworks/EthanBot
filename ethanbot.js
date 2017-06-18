@@ -26,7 +26,7 @@ function initBot(cb){
             caller = caller_id.getData();
         var file = ["Nowhere"];
         if(caller.filePath)
-            file = caller.filePath.split("\\");
+            file = caller.filePath.split("/");
 
         var origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
 
