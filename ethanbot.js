@@ -112,7 +112,7 @@ function startBot(cb){
             .then(function(result){
                 var serverInfo = result[0];
                 if(serverInfo.useServerCurrency){
-                   return bot.database.createServerUser(server. member.id, username);
+                   return bot.database.createServerUser(server, member.id, username);
                 }
             })
             .then(function(result){
