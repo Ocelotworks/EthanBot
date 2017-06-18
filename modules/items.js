@@ -75,75 +75,82 @@ module.exports = function(bot) {
                     to: channel,
                     message: ":gun: What can you do with a gun you ask? Rob a bank!"
                 }, function(err, resp){
-                    var id = resp.id;
-                    var succeeds = Math.random() > 0.5;
-                    async.eachSeries([
-                        function(cb){
-                            bot.editMessage({
-                                channelID: channel,
-                                messageID: id,
-                                message: ":gun: You take the gun into your nearest branch..."
-                            }, cb);
-                        },
-                        function(cb){
-                            bot.editMessage({
-                                channelID: channel,
-                                messageID: id,
-                                message: ":gun: "+ (succeeds ? "Huh. It's surprisingly easy to rob a bank." : "Well that didn't go as planned...")
-                            }, cb);
-                        },
-                        function(cb){
-                            bot.editMessage({
-                                channelID: channel,
-                                messageID: id,
-                                message: ":gun: "+(succeeds ? "Best get rid of this **Gun**. It's got your fingerprints all over it." : "The police take your gun, but let you go for some reason.")
-                            }, cb);
-                        }
-                    ], function(func, cb){
-                        setTimeout(function(){
-                            func(cb);
-                        }, 2000);
-                    }, function(){
-                        if(succeeds){
-                            var amount = parseInt(Math.random() > 0.1 ? Math.random()*10000+500 : Math.random()*2500+100);
-                            var server = bot.channels[channel].guild_id;
-                            bot.getCurrencyFor(server, amount)
-                                .then(function(currency){
-                                    bot.sendMessage({
-                                        to: channel,
-                                        message: `:dollar: <@${user}> gains **${amount}** ${currency} from robbing the bank but loses their gun in the process.`
+                    if(!err) {
+                        var id = resp.id;
+                        var succeeds = Math.random() > 0.5;
+                        async.eachSeries([
+                            function (cb) {
+                                bot.editMessage({
+                                    channelID: channel,
+                                    messageID: id,
+                                    message: ":gun: You take the gun into your nearest branch..."
+                                }, cb);
+                            },
+                            function (cb) {
+                                bot.editMessage({
+                                    channelID: channel,
+                                    messageID: id,
+                                    message: ":gun: " + (succeeds ? "Huh. It's surprisingly easy to rob a bank." : "Well that didn't go as planned...")
+                                }, cb);
+                            },
+                            function (cb) {
+                                bot.editMessage({
+                                    channelID: channel,
+                                    messageID: id,
+                                    message: ":gun: " + (succeeds ? "Best get rid of this **Gun**. It's got your fingerprints all over it." : "The police take your gun, but let you go for some reason.")
+                                }, cb);
+                            }
+                        ], function (func, cb) {
+                            setTimeout(function () {
+                                func(cb);
+                            }, 2000);
+                        }, function () {
+                            if (succeeds) {
+                                var amount = parseInt(Math.random() > 0.1 ? Math.random() * 10000 + 500 : Math.random() * 2500 + 100);
+                                var server = bot.channels[channel].guild_id;
+                                bot.getCurrencyFor(server, amount)
+                                    .then(function (currency) {
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: `:dollar: <@${user}> gains **${amount}** ${currency} from robbing the bank but loses their gun in the process.`
+                                        });
+                                        return bot.database.addBalance(user, amount);
+                                    })
+                                    .then(function () {
+                                        return bot.database.logTransaction("bankrob===========", user, amount, "other");
+                                    })
+                                    .then(function () {
+                                        return bot.database.consumeItem(user, ITEM_GUN);
+                                    })
+                                    .catch(function (err) {
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: ":bangbang: Something went terribly wrong.\n" + err
+                                        });
                                     });
-                                    return bot.database.addBalance(user, amount);
-                                })
-                                .then(function(){
-                                    return bot.database.logTransaction("bankrob===========", user, amount, "other");
-                                })
-                                .then(function(){
-                                    return bot.database.consumeItem(user, ITEM_GUN);
-                                })
-                                .catch(function(err){
-                                    bot.sendMessage({
-                                        to: channel,
-                                        message: ":bangbang: Something went terribly wrong.\n"+err
+                            } else {
+                                bot.database.consumeItem(user, ITEM_GUN)
+                                    .then(function () {
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: `:dollar: <@${user}> failed to rob the bank and lost their gun...`
+                                        });
+                                    })
+                                    .catch(function (err) {
+                                        bot.sendMessage({
+                                            to: channel,
+                                            message: ":bangbang: Something went terribly wrong.\n" + err
+                                        });
                                     });
-                                });
-                        }else{
-                            bot.database.consumeItem(user, ITEM_GUN)
-                                .then(function(){
-                                   bot.sendMessage({
-                                       to: channel,
-                                       message: `:dollar: <@${user}> failed to rob the bank and lost their gun...`
-                                   });
-                                })
-                                .catch(function(err){
-                                    bot.sendMessage({
-                                        to: channel,
-                                        message: ":bangbang: Something went terribly wrong.\n"+err
-                                    });
-                                });
-                        }
+                            }
 
-                    })
+                        })
+                    }else{
+                        bot.sendMessage({
+                            to: channel,
+                            message: ":thinking: Error sending message to discord:\n"+err
+                        });
+                    }
                 });
             };
 
