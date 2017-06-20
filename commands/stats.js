@@ -20,17 +20,17 @@ module.exports = {
                        fields: [
                            {
                                name: "Total Servers",
-                               value: Object.keys(bot.servers).length,
+                               value: bot.numberWithCommas(Object.keys(bot.servers).length),
                                inline: true
                            },
                            {
                                name: "Total Users",
-                               value: Object.keys(bot.users).length,
+                               value: bot.numberWithCommas(Object.keys(bot.users).length),
                                inline: true
                            },
                            {
                                name: "Current Uptime",
-                               value: parseInt(process.uptime()/60)+" minutes",
+                               value: bot.numberWithCommas(parseInt(process.uptime()/60))+" minutes",
                                inline: true
                            },
                            {
@@ -40,12 +40,12 @@ module.exports = {
                            },
                            {
                                name: "Total Balance",
-                               value: `${stats[0].totalBalance} ${config.get("Bot.defaultCurrency")}s`,
+                               value: `${bot.numberWithCommas(stats[0].totalBalance)} ${config.get("Bot.defaultCurrency")}s`,
                                inline: true
                            },
                            {
                                name: "Average Balance",
-                               value: `${stats[0].averageBalance} ${config.get("Bot.defaultCurrency")}s`,
+                               value: `${bot.numberWithCommas(stats[0].averageBalance)} ${config.get("Bot.defaultCurrency")}s`,
                                inline: true
                            }
                        ],
@@ -58,3 +58,4 @@ module.exports = {
             });
     }
 };
+

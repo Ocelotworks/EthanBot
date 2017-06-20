@@ -35,7 +35,7 @@ module.exports = {
                           total = lotteryDetails[0].total;
                           bot.sendMessage({
                               to: winner.id,
-                              message: `:dollar: Congratulations, you have won the lottery jackpot of **${total}** ${config.get("Bot.defaultCurrency")}s!`
+                              message: `:dollar: Congratulations, you have won the lottery jackpot of **${numberWithCommas(total)}** ${config.get("Bot.defaultCurrency")}s!`
                           });
                           return bot.database.getUser(winner.id);
                       })
@@ -51,7 +51,7 @@ module.exports = {
                               if(result.hasOwnProperty(i)){
                                   bot.sendMessage({
                                       to: result[i].lotteryChannel,
-                                      message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${total} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with **!lottery [amount]** to have a chance of winning!`
+                                      message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${numberWithCommas(total)} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with **!lottery [amount]** to have a chance of winning!`
                                   });
                               }
                           }
@@ -74,7 +74,7 @@ module.exports = {
                    if(lottery.entries > 0){
                        bot.sendMessage({
                            to: channel,
-                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${parseInt(lottery.averageBet)}** ${config.get("Bot.defaultCurrency")}s per bet, **${lottery.total}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with **${bot.prefixCache[server]}lottery [amount]** `
+                           message: `:dollar: **${lottery.entries}** total entries. Averaging **${numberWithCommas(parseInt(lottery.averageBet))}** ${config.get("Bot.defaultCurrency")}s per bet, **${numberWithCommas(lottery.total)}** ${config.get("Bot.defaultCurrency")}s in total.\nDraw in **${parseInt((bot.nextDraw-new Date())/1000/60)}** minutes\nEnter the lottery with **${bot.prefixCache[server]}lottery [amount]** `
                        });
                    }else{
                        bot.sendMessage({
@@ -99,7 +99,7 @@ module.exports = {
                         }else{
                             bot.sendMessage({
                                 to: channel,
-                                message: `:bangbang: You don't have enough for that! You only have **${result[0].balance}** ${config.get("Bot.defaultCurrency")}${result[0].balance > 1 ? "s" : ""}`
+                                message: `:bangbang: You don't have enough for that! You only have **${numberWithCommas(result[0].balance)}** ${config.get("Bot.defaultCurrency")}${result[0].balance > 1 ? "s" : ""}`
                             });
                         }
                     })
@@ -135,3 +135,7 @@ module.exports = {
 
     }
 };
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

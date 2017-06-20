@@ -20,6 +20,10 @@ function initBot(cb){
     bot.errorCount = 0;
     bot.commandCount = 0;
     bot.lastCrash = new Date();
+    bot.PARSER = /[!<>@#&]/g;
+    bot.numberWithCommas = function(x){
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
 
     bot.log = function log(message, caller){
         if(!caller)
@@ -120,6 +124,9 @@ function startBot(cb){
                     bot.log(`Added server user ${member.id} ${username} ${server}`);
             })
             .catch(function(err){
+                if(err.message.indexOf("Duplicate") > -1){
+                    bot.log(`User ${member.id} ${username} already exists on ${server}`);
+                }else
                 bot.error(`Error adding server user: ${member.id} ${username} ${server}: ${err}`)
             });
 
@@ -128,6 +135,9 @@ function startBot(cb){
                 bot.log(`Added user ${member.id}: ${username}`);
             })
             .catch(function(err){
+                if(err.message.indexOf("Duplicate") > -1){
+                    bot.log(`User ${member.id} ${username} already exists.`);
+                }else
                bot.error(`Error adding user ${member.id}/${username}: ${err}`);
             });
     });

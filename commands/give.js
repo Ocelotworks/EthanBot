@@ -48,7 +48,7 @@ module.exports = {
                             .then(function(currency){
                                 bot.sendMessage({
                                     to: channel,
-                                    message: `:dollar: Gave ${users.length} users **${amount}** ${currency}`
+                                    message: `:dollar: Gave ${users.length} users **${bot.numberWithCommas(amount)}** ${currency}`
                                 });
                             })
                             .catch(function(err){
@@ -65,7 +65,7 @@ module.exports = {
                                 .then(function(currency){
                                     bot.sendMessage({
                                         to: channel,
-                                        message: `:dollar: Gave <@${target}> **${amount}** ${currency}.`
+                                        message: `:dollar: Gave <@${target}> **${bot.numberWithCommas(amount)}** ${currency}.`
                                     });
                                 })
                                 .then(function(){

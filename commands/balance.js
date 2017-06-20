@@ -44,7 +44,7 @@ module.exports = {
                     bot.getCurrencyFor(server, balance).then(function(currency){
                         bot.sendMessage({
                             to: channel,
-                            message: `:dollar: <@${target}> has **${balance}** ${currency}.`
+                            message: `:dollar: <@${target}> has **${bot.numberWithCommas(balance)}** ${currency}.`
                         });
                     });
                 }
