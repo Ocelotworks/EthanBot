@@ -37,7 +37,7 @@ module.exports = {
                             to: channel,
                             message: `:bangbang: Something went wrong... \n${err}`
                         });
-                        bot.log("Error "+err);
+                        bot.error("Use Item Error "+err);
                     });
             }else{
                 bot.sendMessage({

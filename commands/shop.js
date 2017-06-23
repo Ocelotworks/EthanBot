@@ -102,7 +102,7 @@ module.exports = {
                                    to: channel,
                                    message: ":bangbang: Error accessing the shop. Please try again later."
                                });
-                               console.log(err);
+                               console.error("Shop error "+err);
                             });
                     }else{
                         bot.sendMessage({

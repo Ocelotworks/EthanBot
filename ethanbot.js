@@ -6,6 +6,7 @@ const   config      = require('config'),
         dateFormat  = require('dateformat'),
         colors      = require('colors'),
         caller_id   = require('caller-id'),
+        path        = require('path'),
         async       = require('async');
 
 var bot = new Discord.Client({
@@ -25,26 +26,52 @@ function initBot(cb){
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
-    bot.log = function log(message, caller){
+    bot.log = function log(message, caller, logged){
         if(!caller)
             caller = caller_id.getData();
         var file = ["Nowhere"];
         if(caller.filePath)
-            file = caller.filePath.split("/");
+            file = caller.filePath.split(path.sep);
 
-        var origin = `[${file[file.length-1]}${caller.functionName ? "/"+caller.functionName : ""}] `.bold;
+        var origin = `[${file[file.length-1]}${caller.functionName ? path.sep+caller.functionName : ""}] `.bold;
 
         var output = origin+message;
         console.log(`[${dateFormat(new Date(), "dd/mm/yy hh:MM")}]`+output);
+
+        if(bot.database && !logged){
+            bot.database.log(message,file[file.length-1]+(caller.functionName ? path.sep+caller.functionName : ""))
+                .catch(function(err){
+                    console.error("ERROR LOGGING MESSAGE!!! "+err);
+                });
+        }
+
     };
 
     bot.error = function error(message){
-        bot.log(message.red, caller_id.getData());
+        var caller = caller_id.getData();
+        var file = ["Nowhere"];
+        if(caller.filePath)
+            file = caller.filePath.split(path.sep);
+        if(bot.database)
+            bot.database.log(message,file[file.length-1]+(caller.functionName ? path.sep+caller.functionName : ""), "ERROR")
+                .catch(function(err){
+                    console.error("ERROR LOGGING ERROR!!! "+err);
+                });
+        bot.log(message.red, caller, true);
         bot.errorCount++;
     };
 
     bot.warn = function warn(message){
-        bot.log(message.yellow, caller_id.getData());
+        var caller = caller_id.getData();
+        var file = ["Nowhere"];
+        if(caller.filePath)
+            file = caller.filePath.split(path.sep);
+        if(bot.database)
+            bot.database.log(message,file[file.length-1]+(caller.functionName ? path.sep+caller.functionName : ""), "WARN")
+                .catch(function(err){
+                    console.error("ERROR LOGGING WARNING!!! "+err);
+                });
+        bot.log(message.yellow, caller, true);
     };
 
     bot.log("EthanBot Loading...");
@@ -153,4 +180,40 @@ function startBot(cb){
 
 initBot(function(){
     bot.log("Ready");
+});
+
+
+process.on("uncaughtException", function(err){
+    bot.database.log(err.stack, err.message, "CRASH")
+        .then(function(){
+            bot.knex.client.pool.drain(bot.knex.client.pool.destroyAllNow);
+            bot.disconnect();
+            setTimeout(function(){
+                process.exit(1);
+            }, 1000);
+        })
+        .catch(function(){
+            process.exit(1);
+        });
+});
+
+process.on('unhandledRejection', function(reason){
+    bot.database.log("Unhandled Rejection", reason || "No Reason Given", "ERROR")
+        .catch(function(err){
+            console.error("Error logging unhandled rejection "+err);
+        });
+});
+
+
+process.on('beforeExit', function(){
+   bot.log("Exiting...");
+    bot.knex.client.pool.drain(bot.knex.client.pool.destroyAllNow);
+    bot.disconnect();
+    setTimeout(function(){
+        process.exit(1);
+    }, 1000);
+});
+
+process.on('warning', function(warning){
+    bot.warn("Node warning: "+warning.message);
 });

@@ -193,6 +193,9 @@ module.exports = function(bot) {
                     .then(function(){
                         return bot.database.logTransaction("creditcard========", user, amount, "other");
                     })
+                    .then(function(){
+                        return bot.database.consumeItem(user, ITEM_CREDIT_CARD);
+                    })
                     .catch(function(err){
                         bot.sendMessage({
                             to: channel,

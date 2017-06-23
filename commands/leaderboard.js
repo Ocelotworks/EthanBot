@@ -36,6 +36,7 @@ module.exports = {
                 }
             })
             .catch(function(err){
+                bot.error("Leaderboard Error:"+err);
                 bot.sendMessage({
                     to: channel,
                     message: ":bangbang: There was en error generating the leaderboard: \n"+err

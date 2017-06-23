@@ -57,7 +57,8 @@ module.exports = {
                           }
                       })
                       .catch(function(err){
-                          bot.log(err);
+                          if(err.message.indexOf("Nobody") === -1)
+                            bot.error("Error during lottery process: "+err);
                       });
                   bot.lotteryTimeout = setTimeout(bot.doLottery, parseInt(config.get("Bot.lotteryInterval")));
               };
@@ -123,6 +124,7 @@ module.exports = {
                                 message: ":bangbang: You've already entered the lottery!"
                             });
                         }else{
+                            bot.error("Lottery Error: "+err);
                             bot.sendMessage({
                                 to: channel,
                                 message: ":bangbang: Error entering lottery. You have not been charged.\n"+err

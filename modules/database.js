@@ -18,6 +18,7 @@ module.exports = function(bot){
             const REWARDS_TABLE         = "eb_rewardroles";
             const SHOP_TABLE            = "eb_shop";
             const INVENTORY_TABLE       = "eb_inventory";
+            const LOG_TABLE             = "eb_logs";
 
 
             bot.getCurrencyFor = function getCurrencyFor(server, amount){
@@ -27,6 +28,7 @@ module.exports = function(bot){
             };
 
             bot.database = {
+                knex: knex,
                 addServer: function addNewServer(serverID, addedBy){
                     return knex.insert({
                         server: serverID,
@@ -82,7 +84,7 @@ module.exports = function(bot){
                                 }
                             })
                             .catch(function (err) {
-                                bot.error(`Error getting server ${serverID}: ${err}`);
+                                bot.error(`Error getting server ${serverID}: ${err.stack}`);
                             });
                     }else{
                         bot.warn("Tried to add users from server that does not exist! "+serverID);
@@ -175,7 +177,9 @@ module.exports = function(bot){
                 },
                 transact: function transact(from, to, amount, server){
                     return bot.database.addBalance(to, amount, server).then(function(){
-                        return bot.database.addBalance(from, -amount, server)
+                        if(from.indexOf("=") === -1)
+                            return bot.database.addBalance(from, -amount, server)
+
                     }).then(function(){
                         return bot.database.logTransaction(from, to, amount, "transfer");
                     });
@@ -261,6 +265,18 @@ module.exports = function(bot){
                 },
                 getServersWithNoLotteryChannel: function getServersWithNoLotteryChannel(){
                     return knex.select("server").from(SERVERS_TABLE).whereNull("lotteryChannel");
+                },
+                getLeaderboard: function getLeaderboard(server){
+                    if(!server){
+                        return knex.select("username", "balance", "user").from(USERS_TABLE).orderBy("balance", "DESC").limit(10);
+                    }
+                },
+                log: function log(origin, message, level){
+                    return knex.insert({
+                        level: level || "info",
+                        origin: ""+origin,
+                        message: ""+message
+                    }).into(LOG_TABLE);
                 }
             };
 

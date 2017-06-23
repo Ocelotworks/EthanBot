@@ -20,34 +20,42 @@ module.exports = {
             bot.database.getRewardServers()
                 .then(function(servers){
                     return pasync.eachSeries(servers, function(server, callback){
-                        if(server.useRoleRewards){
-                            bot.database.getRoleRewards(server.server).then(function(roleRewards){
-                               return pasync.eachSeries(bot.servers[server.server].members, function(member, cb){
-                                    var keys = Object.keys(member.roles);
-                                    pasync.eachSeries(roleRewards, function(roleReward, cb2){
-                                        if(keys.indexOf(roleReward.role) > -1){
-                                            bot.log(`Rewarding ${member.id} ${roleReward.amount} monies in ${server.server}.`);
-                                            bot.transact("reward============", member.id, roleReward.amount, server.server)
-                                                .then(function(){
-                                                    cb2();
-                                                })
-                                                .catch(function(err){
-                                                    bot.warning("Failed to give out daily reward: "+err);
-                                                    cb2();
-                                                })
-                                        }else{
-                                            cb2();
-                                        }
+                        if(server.useRoleRewards) {
+                            bot.log("Server " + server.server + " uses role rewards");
+                            if (bot.servers[server.server]) {
+                                bot.database.getRoleRewards(server.server).then(function (roleRewards) {
+                                    bot.log("Found " + roleRewards.length + " role rewards for server ");
+                                    return pasync.eachSeries(bot.servers[server.server].members, function (member, cb) {
+                                        var keys = member.roles;
+                                        pasync.eachSeries(roleRewards, function (roleReward, cb2) {
+                                            if (keys.indexOf(roleReward.role) > -1) {
+                                                bot.log(`Rewarding ${member.id} ${roleReward.amount} monies in ${server.server}.`);
+                                                bot.database.transact("reward============", member.id, roleReward.amount, server.server)
+                                                    .then(function () {
+                                                        cb2();
+                                                    })
+                                                    .catch(function (err) {
+                                                        bot.error("Failed to give out daily reward: " + err);
+                                                        cb2();
+                                                    })
+                                            } else {
+                                                cb2();
+                                            }
 
-                                    }).then(function(){cb();});
-                               });
-                            });
+                                        }).then(function () {
+                                            cb();
+                                        });
+                                    });
+                                });
+                            }else{
+                                bot.log("Server "+server.server+" does not exist anymore :(");
+                            }
                         }
                         callback();
                     });
                 })
                 .catch(function(err){
-                    bot.log("Error giving out rewards: "+err);
+                    bot.error("Error giving out rewards: "+err);
                 });
 
             setTimeout(bot.doDailyRewards, 8.64e7);//24 hours
@@ -159,7 +167,8 @@ module.exports = {
                                     bot.sendMessage({
                                         to: channel,
                                         message: `Error setting value. Did you spell something wrong?:\n\`${err}\``
-                                    })
+                                    });
+                                    bot.error("Error setting value: "+err);
                                 });
                         }else{
                             bot.sendMessage({
@@ -219,6 +228,7 @@ module.exports = {
                                             to: channel,
                                             message: `:bangbang: Error setting role reward:\n${err}`
                                         });
+                                        bot.error("Error setting role reward "+err);
                                     });
                             }
                         }
