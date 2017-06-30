@@ -184,6 +184,7 @@ initBot(function(){
 
 
 process.on("uncaughtException", function(err){
+    console.error(err);
     bot.database.log(err.stack, err.message, "CRASH")
         .then(function(){
             bot.knex.client.pool.drain(bot.knex.client.pool.destroyAllNow);
@@ -198,6 +199,7 @@ process.on("uncaughtException", function(err){
 });
 
 process.on('unhandledRejection', function(reason){
+    console.error("Unhandled rejection: "+reason);
     bot.database.log("Unhandled Rejection", reason || "No Reason Given", "ERROR")
         .catch(function(err){
             console.error("Error logging unhandled rejection "+err);
