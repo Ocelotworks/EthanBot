@@ -50,6 +50,18 @@ module.exports = {
                             }else{
                                 bot.log("Server "+server.server+" does not exist anymore :(");
                             }
+                        }else{
+                            bot.log(`Server ${server.server} does not use role rewards.`);
+                            return pasync.eachSeries(bot.servers[server.server].members, function(member, cb){
+                                bot.database.transact("reward============", member.id, server.dailyRewardAmount, server.server)
+                                    .then(function () {
+                                        cb();
+                                    })
+                                    .catch(function (err) {
+                                        bot.error("Failed to give out daily reward: " + err);
+                                        cb();
+                                    });
+                            });
                         }
                         callback();
                     });
