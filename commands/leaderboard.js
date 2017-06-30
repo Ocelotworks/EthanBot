@@ -22,7 +22,7 @@ module.exports = {
                     var i = 1;
                     async.eachSeries(leaderboard, function(leaderboardUser, cb){
                         data.push({
-                            Rank: i++,
+                            "#": i++,
                             User: leaderboardUser.username,
                             EthanBucks: bot.numberWithCommas(leaderboardUser.balance)
                         });
@@ -30,7 +30,7 @@ module.exports = {
                     }, function(){
                         bot.sendMessage({
                             to: channel,
-                            message: "Top 10:\n```\n"+columnify(data)+"\n```"
+                            message: "Top 10:\n```yaml\n"+columnify(data)+"\n```"
                         });
                     });
                 }
