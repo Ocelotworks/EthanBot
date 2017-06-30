@@ -67,7 +67,8 @@ module.exports = function(bot){
                 bot.sendMessage({
                     to: channelID,
                     message: ":bangbang: Command failed: "+e
-                })
+                });
+                bot.error("Command failed: "+message+": "+e);
             }
         });
       }
