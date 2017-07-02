@@ -103,7 +103,7 @@ module.exports = function(bot){
                     return knex.select("role", "amount").from(REWARDS_TABLE).where({server: server});
                 },
                 getRewardServers: function getRewardServers(){
-                    return knex.select("server", "dailyRewardAmount", "useRoleRewards").from(SERVERS_TABLE).where({useDailyReward: 1});
+                    return knex.select("server", "dailyRewardAmount", "useRoleRewards").from(SERVERS_TABLE).where({useDailyReward: 1, useServerCurrency: 1});
                 },
                 setRoleReward: function setRoleReward(server, role, amount){
                     return bot.database.getRoleReward(server, role)
