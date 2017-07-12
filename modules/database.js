@@ -19,6 +19,7 @@ module.exports = function(bot){
             const SHOP_TABLE            = "eb_shop";
             const INVENTORY_TABLE       = "eb_inventory";
             const LOG_TABLE             = "eb_logs";
+            const COMMANDLOG_TABLE      = "commandlog";
 
 
             bot.getCurrencyFor = function getCurrencyFor(server, amount){
@@ -277,6 +278,14 @@ module.exports = function(bot){
                         origin: ""+origin,
                         message: ""+message
                     }).into(LOG_TABLE);
+                },
+                logCommand: function(user, channel, command){
+                    return knex.insert({
+                        command: command,
+                        userID: user,
+                        channelID: channel,
+                        server: "ethanbot-0"
+                    }).into(COMMANDLOG_TABLE);
                 }
             };
 
