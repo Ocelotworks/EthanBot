@@ -49,10 +49,11 @@ module.exports = {
                       .then(function(result){
                           for(var i in result){
                               if(result.hasOwnProperty(i)){
-                                  bot.sendMessage({
-                                      to: result[i].lotteryChannel,
-                                      message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${numberWithCommas(total)} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with **!lottery [amount]** to have a chance of winning!`
-                                  });
+                                  if(bot.servers[result[i].server])
+                                      bot.sendMessage({
+                                          to: result[i].lotteryChannel,
+                                          message: `:dollar: The lottery results are in! Congratulations to **${Object.keys(bot.servers[result[i].server].members).indexOf(winner.id) > -1 ? "<@"+winner.id+">" : winner.name}** for winning ${numberWithCommas(total)} ${config.get("Bot.defaultCurrency")}s!\nNext draw in **1** hour. Enter now with **!lottery [amount]** to have a chance of winning!`
+                                      });
                               }
                           }
                       })
