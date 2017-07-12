@@ -14,7 +14,8 @@
       "port": 3306,
       "user": "",
       "password": "",
-      "database": "ethanbot"
+      "database": "ethanbot",
+      "charset": "utf8mb4_general_ci"
     },
     "pool": {
       "min": 0,
