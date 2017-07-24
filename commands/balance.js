@@ -36,7 +36,7 @@ module.exports = {
                     }else{
                         bot.sendMessage({
                             to: channel,
-                            message: ":bangbang: That user doesn't exit."
+                            message: ":bangbang: That user doesn't exist. Try @mentioning them instead"
                         });
                     }
                 }else{
