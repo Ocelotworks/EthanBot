@@ -32,7 +32,7 @@ module.exports = {
                                                 bot.log(`Rewarding ${member.id} ${roleReward.amount} monies in ${server.server}.`);
                                                 bot.database.transact("reward============", member.id, roleReward.amount, server.server)
                                                     .then(function () {
-                                                        setTimeout(cb2, 100);
+                                                        setTimeout(cb2, 200);
                                                     })
                                                     .catch(function (err) {
                                                         bot.error("Failed to give out daily reward: " + err);
