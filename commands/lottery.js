@@ -25,7 +25,7 @@ module.exports = {
                   var total = 0;
                   bot.database.pickLotteryWinner()
                       .then(function(winnerResult){
-                          if(winnerResult.length < 2){
+                          if(!winnerResult[0]){
                               throw new Error("Nobody entered the lottery");
                           }
                           winner.id = winnerResult[0].user;
