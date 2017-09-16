@@ -195,7 +195,7 @@ module.exports = function(bot){
                          });
                 },
                 pickLotteryWinner: function pickLotteryWinner(){
-                    return knex.select("user").from(LOTTERY_TABLE).orderByRaw("-LOG(1.0 - RAND()) / (amount) ASC").limit(1);
+                    return knex.select("user").from(LOTTERY_TABLE).orderByRaw("RAND").limit(1);
                 },
                 awardLotteryMoney: function awardLotteryMoney(user){
                     var amount;
