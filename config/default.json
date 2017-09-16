@@ -1,7 +1,7 @@
 {
   "Bot": {
     "defaultCurrency": "EthanBuck",
-    "lotteryInterval": 3600000
+    "lotteryInterval": 8.64e7
   },
   "Discord": {
     "token": "",
