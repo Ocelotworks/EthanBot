@@ -30,6 +30,9 @@ module.exports = function(bot) {
 
             bot.items = [];
 
+
+            var spagDelay = {};
+
             bot.items[ITEM_CRATE_KEY] = function(user, channel){
                 var currency;
                 bot.database.hasItem(user, ITEM_CRATE)
@@ -240,20 +243,30 @@ module.exports = function(bot) {
             };
 
             bot.items[ITEM_SPAGHETTI] = function(user, channel){
-                bot.getCurrencyFor(bot.channels[channel].guild_id, 2)
-                    .then(function(currency){
-                        bot.sendMessage({
-                            to: channel,
-                            message: `:spaghetti: Mmmmmm... Delicious. Well worth my hard earned ${currency}.`
-                        });
-                        return bot.database.consumeItem(user, ITEM_SPAGHETTI);
-                    })
-                    .catch(function(err){
-                        bot.sendMessage({
-                            to: channel,
-                            message: `:bangbang: Unfortunately the spaget into flames and you lost everything.\n${err}`
-                        });
-                    });
+            	const now = new Date().getTime();
+            	if(spagDelay[user] && now-spagDelay[user] < 140000){
+            		bot.sendMessage({
+						to: channel,
+						message: `:spaghetti: You're full! You need to wait another **${Math.ceil((140000-(now-spagDelay[user]))/1000/60)} minutes** before you can consume spaghetti again.`
+					});
+				}else{
+					bot.getCurrencyFor(bot.channels[channel].guild_id, 2)
+						.then(function(currency){
+							bot.sendMessage({
+								to: channel,
+								message: `:spaghetti: Mmmmmm... Delicious. Well worth my hard earned ${currency}.`
+							});
+							spagDelay[user] = now;
+							return bot.database.consumeItem(user, ITEM_SPAGHETTI);
+						})
+						.catch(function(err){
+							bot.sendMessage({
+								to: channel,
+								message: `:bangbang: Unfortunately the spaget into flames and you lost everything.\n${err}`
+							});
+						});
+				}
+
             };
 
 
