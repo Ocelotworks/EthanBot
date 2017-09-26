@@ -17,6 +17,7 @@ module.exports = {
                     bot.log("User doesn't have a thing");
 
                     if(bot.users[target]){
+
                         bot.database.createServerUser(server, target, bot.users[target].username+"#"+bot.users[target].discriminator)
                             .then(function(){
                                 return bot.getCurrencyFor(server, balance);
