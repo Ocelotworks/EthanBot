@@ -88,6 +88,7 @@ function initBot(cb){
             bot.sendMessageForReal(messageParams.args, messageParams.cb);
             bot.messageCount++;
             bot.totalMessageTime = new Date() - messageParams.sentAt;
+            bot.log("-> "+messageParams.args.message);
             setTimeout(bot.handleMessageQueue, parseInt(config.get("Discord.messageDelay")));
         }else{
             bot.isHandlingMessageQueue = false;

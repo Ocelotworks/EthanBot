@@ -22,14 +22,21 @@ module.exports = {
                 currency = result[0].serverCurrencyName + (result[0].usePluralCurrency ? "s": "");
                 return bot.database.getInventory(target)
             })
-            .then(function(result){
+            .then(async function(result){
                 if(result.length == 0){
                     bot.sendMessage({
                         to: channel,
                         message: `:spider_web: <@${target}>'s Inventory is empty! ${userID == target ? `Maybe check out ${bot.prefixCache[server]}shop?` : ""}`
                     });
                 }else{
-                    var output = `**<@${target}>'s Inventory:**\n`;
+                    const invSize = await bot.database.getInventorySize(target);
+                    const maxInv = await bot.database.getMaxInventorySize(target);
+                    var output = `**<@${target}>'s Inventory:** `;
+                    if(invSize < maxInv-10){
+                    	output+= `(${invSize}/${maxInv} spaces used)\n`;
+					}else{
+						output+= `**(${invSize}/${maxInv} spaces used) :warning: To buy more inventory space, buy and use an inventory extender.**\n`;
+					}
                     for(var i in result){
                         if(result.hasOwnProperty(i)) {
                             var item = result[i];

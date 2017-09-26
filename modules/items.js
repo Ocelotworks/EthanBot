@@ -14,9 +14,19 @@ module.exports = function(bot) {
                     ITEM_CREDIT_CARD = 4,
                     ITEM_BAG = 5,
                     ITEM_FAIRY = 6,
-                    ITEM_SPAGHETTI = 7;
+                    ITEM_SPAGHETTI = 7,
+                    ITEM_INV_EXENTENDER = 9;
 
-            bot.CRATE_CONTENTS =  [2, 2, 2, 1, 1, 4, 4, 7, 7, 7, 7, 6, 5, 5, 4, 4, 2, 2, 7, 5];
+            bot.CRATE_CONTENTS =  [
+            	7, 7, 7, 7, 7, 7, 7,
+				1, 1, 1, 1,
+				2, 2, 2,
+				3,
+				4, 4, 4, 4,
+				5, 5, 5,
+				6, 6,
+				9,
+			];
 
             bot.items = [];
 
@@ -245,6 +255,25 @@ module.exports = function(bot) {
                         });
                     });
             };
+
+
+			bot.items[ITEM_INV_EXENTENDER] = async function(user, channel){
+				try{
+					await bot.database.upgradeInventorysize(user, 150);
+					await bot.database.consumeItem(user, ITEM_INV_EXENTENDER);
+					bot.sendMessage({
+						to: channel,
+						message: "Your inventory has been extended successfully."
+					});
+				}catch(e){
+					bot.sendMessage({
+						to: channel,
+						message: `:bangbang: Unable to use inventory extender. Try again later.`
+					});
+					console.log("Error using inv extender");
+					console.log(e);
+				}
+			};
 
             cb();
         }

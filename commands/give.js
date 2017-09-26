@@ -35,7 +35,17 @@ module.exports = {
                     }else if(args[2] && parseInt(args[2])){
                         var amount = parseInt(args[2]);
                         var target = args[1].replace(/[<>@!]/g, "");
-                        if(target === "all"){
+                        if(amount >= 9007199254740992){
+                        	bot.sendMessage({
+								to: channel,
+								message: ":bangbang: You must enter an amount less than 9,007,199,254,740,990"
+							});
+						}else if(amount <= -9007199254740992){
+							bot.sendMessage({
+								to: channel,
+								message: ":bangbang: You must enter an amount more than than -9,007,199,254,740,990"
+							});
+						}else if(target === "all"){
                             var users = Object.keys(bot.servers[server].members);
                             pasync.eachSeries(users, function(user, callback){
                                 bot.database.addBalance(user, amount, server).then(function(){

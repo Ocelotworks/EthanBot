@@ -22,7 +22,17 @@ module.exports = {
                     to: channel,
                     message: ":bangbang: You must specify a valid amount!"
                 });
-            }else{
+            }else if(amount >= 9007199254740992){
+                bot.sendMessage({
+                    to: channel,
+                    message: ":bangbang: You must enter an amount less than 9,007,199,254,740,990"
+                });
+            }else if(amount > 1000000000000){
+				bot.sendMessage({
+					to: channel,
+					message: ":warning: Balances are capped at **9,007,199,254,740,990**. You will lose money if you attempt to increase someones balance past that point."
+				});
+			}else{
                 var to = args[1].replace(/[@<>!]/g, "");
                 if (!bot.users[to]){
                     bot.sendMessage({

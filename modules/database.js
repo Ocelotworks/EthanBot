@@ -195,7 +195,7 @@ module.exports = function(bot){
                          });
                 },
                 pickLotteryWinner: function pickLotteryWinner(){
-                    return knex.select("user").from(LOTTERY_TABLE).orderByRaw("RAND").limit(1);
+                    return knex.select("user").from(LOTTERY_TABLE).orderByRaw("RAND()").limit(1);
                 },
                 awardLotteryMoney: function awardLotteryMoney(user){
                     var amount;
@@ -211,6 +211,27 @@ module.exports = function(bot){
                             return bot.database.logTransaction("lottery", user, amount);
                         });
                 },
+				getInventorySize: async function getInventorySize(user){
+					const result = await knex.select(knex.raw("COUNT(*)")).from(INVENTORY_TABLE).groupBy("user").where({user: user});
+					return result[0] ? result[0]["COUNT(*)"] : 0;
+				},
+				getMaxInventorySize:async function getMaxInventorySize(user){
+					const result = await knex.select("invSize").from(USERS_TABLE).where({user: user}).limit(1);
+					return result[0] ? result[0].invSize : 0;
+				},
+				upgradeInventorysize: async function upgradeInventorySize(user, amount){
+					var invResult = await knex.select("invSize").from(USERS_TABLE).where({user: user}).limit(1);
+					const currentInvSize = parseInt(invResult[0].invSize);
+					if(invResult[0] && currentInvSize){
+						return knex(USERS_TABLE).update({invSize: currentInvSize+amount}).where({user: user}).limit(1);
+					}
+					return null;
+				},
+				isInventoryFull: async function isInventoryFull(user){
+					const inventorySizeResult = await bot.database.getInventorySize(user);
+					const inventoryMaxResult = await bot.database.getMaxInventorySize(user);
+					return inventorySizeResult > inventoryMaxResult;
+				},
                 getServersWithSetting: function getServersWithSetting(setting){
                     return knex.select().from(SERVERS_TABLE).whereNotNull(setting).andWhereNot(setting, 0);
                 },
@@ -219,7 +240,8 @@ module.exports = function(bot){
                         from: from === "lottery" ? "lottery===========" : from,
                         to: to === "lottery" ? "lottery===========" : to,
                         amount: amount,
-                        type: type ? type : "lottery"
+                        type: type ? type : "lottery",
+						id: parseInt(Math.random()*100)
                     }).into(TRANSACTIONS_TABLE);
                 },
                 getStats: function getStats(){
