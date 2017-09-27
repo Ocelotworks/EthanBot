@@ -182,7 +182,7 @@ module.exports = {
                                 .catch(function(err){
                                     bot.sendMessage({
                                         to: channel,
-                                        message: `Error setting value. Did you spell something wrong?:\n\`${err}\``
+                                        message: `Error setting value. Did you spell something wrong?`
                                     });
                                     bot.error("Error setting value: "+err);
                                 });
