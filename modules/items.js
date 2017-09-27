@@ -24,8 +24,7 @@ module.exports = function(bot) {
 				3,
 				4, 4, 4, 4,
 				5, 5, 5,
-				6, 6,
-				9,
+				6, 6
 			];
 
             bot.items = [];
@@ -272,7 +271,7 @@ module.exports = function(bot) {
 
 			bot.items[ITEM_INV_EXENTENDER] = async function(user, channel){
 				try{
-					await bot.database.upgradeInventorysize(user, 150);
+					await bot.database.upgradeInventorysize(user, 50);
 					await bot.database.consumeItem(user, ITEM_INV_EXENTENDER);
 					bot.sendMessage({
 						to: channel,
