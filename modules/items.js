@@ -32,47 +32,54 @@ module.exports = function(bot) {
 
             var spagDelay = {};
 
-            bot.items[ITEM_CRATE_KEY] = function(user, channel){
+            bot.items[ITEM_CRATE_KEY] = async function(user, channel){
                 var currency;
-                bot.database.hasItem(user, ITEM_CRATE)
-                    .then(function(hasItem){
-                        if(!hasItem){
-                            bot.sendMessage({
-                                to: channel,
-                                message: ":bangbang: You need a **:gift: Crate** to use this item. Buy one with !shop buy "+ITEM_CRATE
-                            });
-                            throw new Error("No Crate");
-                        }else{
-                            return bot.database.consumeItem(user, ITEM_CRATE);
-                        }
-                    })
-                    .then(function(){
-                        return bot.database.consumeItem(user, ITEM_CRATE_KEY);
-                    })
-                    .then(function(){
-                        return bot.database.getServerCurrency(bot.channels[channel].guild_id);
-                    })
-                    .then(function(result){
-                        currency = result[0].serverCurrencyName + (result[0].usePluralCurrency ? "s": "");
-                        var itemID = bot.CRATE_CONTENTS[parseInt(Math.random()*bot.CRATE_CONTENTS.length)];
-                        return bot.database.getItemDetails(itemID);
-                    })
-                    .then(function(result){
-                        bot.sendMessage({
-                            to: channel,
-                            message: `:gift: The crate contained a **${(result[0].name).replace("%CURRENCY", currency)}**!`
-                        });
-                        return bot.database.giveItem(user, result[0].id);
-                    })
-                    .catch(function(err){
-                        if(err.message.indexOf("No Crate") === -1) {
-                            bot.sendMessage({
-                                to: channel,
-                                message: ":bangbang: Your crate burst into flames, along with the key. Bad luck..."
-                            });
-                            console.error(err);
-                        }
-                    });
+				if(await bot.database.isInventoryFull(user)){
+					bot.sendMessage({
+						to: channel,
+						message: "You can't open this crate because your inventory is full!\nIf you filled your inventory with crates and keys then... well.. sucks to be you."
+					})
+				}else{
+					bot.database.hasItem(user, ITEM_CRATE)
+						.then(function(hasItem){
+							if(!hasItem){
+								bot.sendMessage({
+									to: channel,
+									message: ":bangbang: You need a **:gift: Crate** to use this item. Buy one with !shop buy "+ITEM_CRATE
+								});
+								throw new Error("No Crate");
+							}else{
+								return bot.database.consumeItem(user, ITEM_CRATE);
+							}
+						})
+						.then(function(){
+							return bot.database.consumeItem(user, ITEM_CRATE_KEY);
+						})
+						.then(function(){
+							return bot.database.getServerCurrency(bot.channels[channel].guild_id);
+						})
+						.then(function(result){
+							currency = result[0].serverCurrencyName + (result[0].usePluralCurrency ? "s": "");
+							var itemID = bot.CRATE_CONTENTS[parseInt(Math.random()*bot.CRATE_CONTENTS.length)];
+							return bot.database.getItemDetails(itemID);
+						})
+						.then(function(result){
+							bot.sendMessage({
+								to: channel,
+								message: `:gift: The crate contained a **${(result[0].name).replace("%CURRENCY", currency)}**!`
+							});
+							return bot.database.giveItem(user, result[0].id);
+						})
+						.catch(function(err){
+							if(err.message.indexOf("No Crate") === -1) {
+								bot.sendMessage({
+									to: channel,
+									message: ":bangbang: Your crate burst into flames, along with the key. Bad luck..."
+								});
+								console.error(err);
+							}
+						});
+				}
             };
 
             bot.items[ITEM_CRATE] = function(user, channel){
@@ -192,7 +199,7 @@ module.exports = function(bot) {
             };
 
             bot.items[ITEM_CREDIT_CARD] = function(user, channel){
-                var amount = parseInt((Math.random() * 5000) * 1000);
+                var amount = parseInt((Math.random() * 5000) + 1000);
                 var server = bot.channels[channel].guild_id;
                 bot.getCurrencyFor(server, amount)
                     .then(function(currency){
