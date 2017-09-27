@@ -108,6 +108,11 @@ module.exports = {
 					message: "Try: !shop list"
 				});
 			}
+		}else{
+			bot.sendMessage({
+				to: channel,
+				message: "Try: !shop list"
+			});
 		}
     }
 };
