@@ -152,7 +152,8 @@ module.exports = {
                     bot.getCurrencyFor(server, 2)
                         .then(function(result){
                             currency = result;
-                            return bot.database.getItemDetails(args[3])
+                            console.log(args[3]);
+                            return bot.database.getItemDetails(parseInt(args[3]))
                         })
                         .then(function(result){
                             if(result[0]){
@@ -160,7 +161,7 @@ module.exports = {
                                     to: channel,
                                     message: `Sent ${args[2]} **${result[0].name.replace("%CURRENCY", currency)}**.`
                                 });
-                                return bot.database.giveItem(args[2].replace(/[@!<>]/g, ""));
+                                return bot.database.giveItem(args[2].replace(/[@!<>]/g, ""), parseInt(args[3]));
                             }else{
                                 throw new Error("No such item");
                             }
