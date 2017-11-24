@@ -96,7 +96,7 @@ module.exports = function(bot) {
                 }, function(err, resp){
                     if(!err) {
                         var id = resp.id;
-                        var succeeds = Math.random() > 0.5;
+                        var succeeds = Math.random() > 0.9;
                         async.eachSeries([
                             function (cb) {
                                 bot.editMessage({
@@ -116,54 +116,41 @@ module.exports = function(bot) {
                                 bot.editMessage({
                                     channelID: channel,
                                     messageID: id,
-                                    message: ":gun: " + (succeeds ? "Best get rid of this **Gun**. It's got your fingerprints all over it." : "The police take your gun, but let you go for some reason.")
+                                    message: ":gun: " + (succeeds ? "Best get rid of this **Gun**. It's got your fingerprints all over it." : "The police take your gun, but let you go with a fine.")
                                 }, cb);
                             }
                         ], function (func, cb) {
                             setTimeout(function () {
                                 func(cb);
                             }, 2000);
-                        }, function () {
-                            if (succeeds) {
-                                var amount = parseInt(Math.random() > 0.1 ? Math.random() * 10000 + 500 : Math.random() * 2500 + 100);
-                                var server = bot.channels[channel].guild_id;
-                                bot.getCurrencyFor(server, amount)
-                                    .then(function (currency) {
-                                        bot.sendMessage({
-                                            to: channel,
-                                            message: `:dollar: <@${user}> gains **${amount}** ${currency} from robbing the bank but loses their gun in the process.`
-                                        });
-                                        return bot.database.addBalance(user, amount);
-                                    })
-                                    .then(function () {
-                                        return bot.database.logTransaction("bankrob===========", user, amount, "other");
-                                    })
-                                    .then(function () {
-                                        return bot.database.consumeItem(user, ITEM_GUN);
-                                    })
-                                    .catch(function (err) {
-                                        bot.sendMessage({
-                                            to: channel,
-                                            message: ":bangbang: Something went terribly wrong.\n" + err
-                                        });
-                                    });
-                            } else {
-                                bot.database.consumeItem(user, ITEM_GUN)
-                                    .then(function () {
-                                        bot.sendMessage({
-                                            to: channel,
-                                            message: `:dollar: <@${user}> failed to rob the bank and lost their gun...`
-                                        });
-                                    })
-                                    .catch(function (err) {
-                                        bot.sendMessage({
-                                            to: channel,
-                                            message: ":bangbang: Something went terribly wrong.\n" + err
-                                        });
-                                    });
-                            }
-
-                        })
+                        },async function () {
+                        	try{
+								var amount = parseInt(Math.random() > 0.9 ? (Math.random() * 10000) + 500 : (Math.random() * 2500) + 100);
+								var server = bot.channels[channel].guild_id;
+								var currency = await bot.getCurrencyFor(server, amount);
+								if(succeeds){
+									bot.sendMessage({
+										to: channel,
+										message: `:dollar: <@${user}> gains **${amount}** ${currency} from robbing the bank but loses their gun in the process.`
+									});
+									await bot.database.addBalance(user, amount);
+									await bot.database.logTransaction("bankrob===========", user, amount, "other");
+									await bot.database.consumeItem(user, ITEM_GUN);
+								}else{
+									await bot.database.consumeItem(user, ITEM_GUN);
+									await bot.database.addBalance(user, -amount*10);
+									bot.sendMessage({
+										to: channel,
+										message: `:dollar: <@${user}> failed to rob the bank and lost their gun and was fined **${amount * 10}** ${currency}.`
+									});
+								}
+							}catch(e){
+								bot.sendMessage({
+									to: channel,
+									message: ":bangbang: Something went terribly wrong.\n" + e
+								});
+							}
+                        });
                     }else{
                         bot.sendMessage({
                             to: channel,
