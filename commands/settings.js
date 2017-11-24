@@ -146,10 +146,15 @@ module.exports = {
             }
         };
         bot.database.getServer(server)
-            .then(function(results){
+            .then(async function(results){
                 var serverInfo = results[0];
                 var hasRole = false;
 
+                if(!serverInfo){
+                	bot.warn("Created server super quick like")
+					await bot.database.addServer(server, userID)
+
+                }
                 var subCommands = {
                     "list": function(){
                         var output = "**Available Settings:**\n";
