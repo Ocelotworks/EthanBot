@@ -54,6 +54,7 @@ module.exports = function(bot){
             });
 
         bot.on('message', function(user, userID, channelID, message, event){
+            if(bot.users[userID] && bot.users[userID].bot)return;
             try {
                 var server = bot.channels[channelID] ? bot.channels[channelID].guild_id : null;
                 if ((bot.prefixCache[server] && message.startsWith(bot.prefixCache[server])) || (!bot.prefixCache[server] && message.startsWith("!"))) {
@@ -61,12 +62,11 @@ module.exports = function(bot){
                     var command = bot.commands[args[0].substring(bot.prefixCache[server]? bot.prefixCache[server].length : 1)];
                     if (command) {
                         command(user, userID, channelID, message, args, event, bot);
-                        bot.log(`${user} performed command ${message}`);
+                        bot.log(`${user} (${userID}) in ${channelID} performed command ${message}`);
                         bot.database.logCommand(userID, channelID, message)
                             .catch(function(err){
                                 bot.error(err.stack);
                             });
-
                     }
                 }
             }catch(e){
