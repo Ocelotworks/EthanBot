@@ -308,15 +308,15 @@ module.exports = function(bot){
                         channelID: channel,
                         server: "ethanbot-0"
                     }).into(COMMANDLOG_TABLE);
-                }
+                },
 				getBankrupt: function(user){
 					return knex.select("bankrupt")
                                     .from(USERS_TABLE)
                                     .where({user: user})
                                     .limit(1)
-				}
+				},
 				addBankruptcy: function(user){
-					getBankrupt(user).then(function(result){
+					bot.database.getBankrupt(user).then(function(result){
 						var amount = result[0].bankrupt + 1;
 						knex(USERS_TABLE)
                         .update({bankrupt: amount})
