@@ -323,7 +323,28 @@ module.exports = function(bot){
                         .where({user: user})
                         .limit(1);
 					});
-				}
+				},
+                resetDaily: function(user){
+				    return bot.database.setDaily(user, new Date().getTime());
+                },
+                setDaily: function(user, timestamp){
+                    return knex(USERS_TABLE)
+                            .update({daily: timestamp})
+                            .where({user: user})
+                            .limit(1);
+                },
+                getDaily: function(user){
+                    return knex.select("daily")
+                        .from(USERS_TABLE)
+                        .where({user: user})
+                        .limit(1);
+                },
+                canRedeemDaily: async function(user){
+                    const result = await bot.database.getDaily(user);
+                    const now = new Date().getTime();
+                    const timeDifference = now-result[0].daily;
+                    return (timeDifference > 8.64e+7); //24 hours
+                }
             };
 
             cb();
