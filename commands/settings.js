@@ -15,7 +15,66 @@ module.exports = {
             midnight.setDate(midnight.getDate()+1);
         }
         bot.log("Midnight is at "+midnight);
-        bot.doDailyRewards = function(){
+
+        async function processRoleRewards(members, roleRewards, serverID){
+            await pasync.eachSeries(members, async function (member, membersCallback) {
+                try {
+                    const keys = member.roles;
+                    await pasync.eachSeries(roleRewards, async function (roleReward, roleRewardsCallback) {
+                        try {
+                            if (keys.indexOf(roleReward.role) > -1) {
+                                bot.log(`Rewarding ${member.id} ${roleReward.amount} monies in ${serverID}.`);
+                                await bot.database.transact("reward============", member.id, roleReward.amount, serverID);
+                            }
+                        }finally{
+                            setTimeout(roleRewardsCallback, 200);
+                        }
+                    });
+                }finally{
+                    membersCallback();
+                }
+            });
+        }
+
+        async function processMemberRewards(members,amount,serverID){
+            await pasync.eachSeries(members, async function (member, membersCallback) {
+                try {
+                    await bot.database.transact("reward============", member.id, amount, serverID);
+                }catch(err){
+                    bot.error(`Error processing member rewards: ${err}`);
+                }finally{
+                    setTimeout(membersCallback, 200);
+                }
+            });
+        }
+
+        bot.doDailyRewards = async function(){
+            const rewardServers = await bot.database.getRewardServers();
+            await pasync.eachSeries(rewardServers, async function(server, rewardServersCallback){
+                try {
+                    const discordServerObject = bot.servers[server.server];
+                    if (server.useRoleRewards) {
+                        bot.log(`Server ${server.server} uses role rewards.`);
+                        if (discordServerObject) {
+                            const roleRewards = bot.database.getRoleRewards(server.server);
+                            bot.log(`Found ${roleRewards.length} role rewards.`);
+                            await processRoleRewards(discordServerObject.members, roleRewards, server.server);
+                        } else {
+                            bot.log(`Server ${server.server} no longer exists.`);
+                        }
+                    } else {
+                        bot.log(`Server ${server.server} does not use role rewards.`);
+                        if (discordServerObject) {
+                            await processMemberRewards(discordServerObject.members, server.dailyRewardAmount, server.server);
+                        } else {
+                            bot.log(`Server ${server.server} no longer exists.`);
+                        }
+                    }
+                }finally{
+                    rewardServersCallback();
+                }
+            });
+
 
             bot.database.getRewardServers()
                 .then(function(servers){
