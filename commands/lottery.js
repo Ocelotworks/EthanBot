@@ -101,12 +101,13 @@ module.exports = {
                                 to: channel,
                                 message: `:bangbang: You don't have enough for that! You only have **${numberWithCommas(result[0].balance)}** ${config.get("Bot.defaultCurrency")}${result[0].balance > 1 ? "s" : ""}`
                             });
+                        } else {
+                            return bot.database.enterLottery(userID, amount);
                         }
                     })
                     .then(function(result){
                         if(result){
-                            bot.database.addBalance(userID,  -amount);
-                            return bot.database.enterLottery(userID, amount);
+                            return bot.database.addBalance(userID,  -amount);
                         }
                     })
                     .then(function(result){
