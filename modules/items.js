@@ -175,7 +175,7 @@ module.exports = function(bot) {
                         return bot.database.logTransaction("moneybag==========", user, amount, "other");
                     })
                     .then(function(){
-                        return bot.database.consumeItem(user, ITEM_FAIRY);
+                        return bot.database.consumeItem(user, ITEM_BAG);
                     })
                     .catch(function(err){
                         bot.sendMessage({
