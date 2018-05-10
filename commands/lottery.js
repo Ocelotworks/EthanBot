@@ -96,18 +96,18 @@ module.exports = {
             }else{
                 bot.database.getBalance(userID)
                     .then(function(result){
-                        if(result[0] && result[0].balance >= amount){
-                            return bot.database.addBalance(userID,  -amount);
-                        }else{
+                        if(!(result[0] && result[0].balance >= amount)){
                             bot.sendMessage({
                                 to: channel,
                                 message: `:bangbang: You don't have enough for that! You only have **${numberWithCommas(result[0].balance)}** ${config.get("Bot.defaultCurrency")}${result[0].balance > 1 ? "s" : ""}`
                             });
+                        } else {
+                            return bot.database.enterLottery(userID, amount);
                         }
                     })
                     .then(function(result){
                         if(result){
-                            return bot.database.enterLottery(userID, amount);
+                            return bot.database.addBalance(userID,  -amount);
                         }
                     })
                     .then(function(result){
